@@ -71,4 +71,4 @@ public abstract class CombatEntity {
     public void setAbilities(List<Ability> abilities) { this.abilities = abilities; }
 
     }
-}
+
