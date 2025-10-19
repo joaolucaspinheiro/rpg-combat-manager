@@ -27,7 +27,19 @@ public abstract class CombatEntity {
     private int hpCurrent;
     private int mpCurrent;
     private int initiative;
-
+    /**
+     * Mapeamento de 'um para muitos': Uma Entidade de Combate possui uma lista de Habilidades.
+     *
+     * mappedBy="owner": Indica que esta é a ponta INVERSA (não-dona) do relacionamento.
+     * O mapeamento da chave estrangeira (a coluna 'owner_id') é gerenciado pelo campo 'owner'
+     * definido na classe Ability.
+     *
+     * cascade=CascadeType.ALL: Propaga todas as operações (salvar, atualizar, deletar)
+     * desta Entidade para suas Habilidades associadas.
+     *
+     * fetch=FetchType.LAZY: Carrega a lista de habilidades apenas quando for solicitada,
+     * otimizando a performance.
+     */
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ability> abilities;
 

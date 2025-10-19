@@ -18,7 +18,14 @@ public class Ability {
     private int mpCost;
     private int damage;
     private String type;
-
+    /**
+     * Mapeamento de 'muitos para um': Muitas Habilidades pertencem a UMA Entidade de Combate.
+     * Esta é a ponta DONA do relacionamento, pois contém a chave estrangeira (Foreign Key).
+     *
+     * @JoinColumn(name = "owner_id"): Especifica o nome da coluna física
+     * que será criada na tabela 'Ability' para armazenar o ID do dono da habilidade
+     * (a Entidade de Combate).
+     */
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private CombatEntity owner;
