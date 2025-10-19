@@ -69,4 +69,6 @@ public abstract class CombatEntity {
 
     public List<Ability> getAbilities() { return abilities; }
     public void setAbilities(List<Ability> abilities) { this.abilities = abilities; }
+
+    }
 }
