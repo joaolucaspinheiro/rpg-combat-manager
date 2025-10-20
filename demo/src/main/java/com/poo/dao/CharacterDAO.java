@@ -1,5 +1,5 @@
 package com.poo.dao;
-
+import com.poo.entity.Character;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 public class CharacterDAO extends GenericDAO<Character> {
