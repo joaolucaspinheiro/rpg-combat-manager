@@ -51,16 +51,13 @@ public class AbilityDAO extends GenericDAO<Ability> {
      * @param name Nome da habilidade que se deseja buscar.
      * @return A habilidade correspondente ao nome fornecido, ou null se não encontrada.
      */
-    public Ability findByName(String name) {
+    public List<Ability> findByName(String name) {
         EntityManager em = getEntityManager();
         try {
             // Usando o LOWER para tornar a busca case-insensitive
             return em.createQuery("SELECT a FROM Ability a WHERE LOWER(a.name) = LOWER(:name)", Ability.class)
                      .setParameter("name", name)
-                     .getSingleResult();
-        } catch (Exception e) {
-            // Retorna null se nenhuma habilidade for encontrada com o nome fornecido
-            return null;
+                     .getResultList();
         } finally {
             em.close();
         }

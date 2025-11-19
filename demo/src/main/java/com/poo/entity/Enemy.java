@@ -13,6 +13,6 @@ public class Enemy extends CombatEntity {
         return enemyType;
     }
     public void setEnemyType(String enemyType) {
-        enemyType = enemyType;
+        this.enemyType = enemyType;
     }
 }
