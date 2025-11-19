@@ -16,7 +16,7 @@ public class Ability {
 
     private String name;
     private int mpCost;
-    private int damage;
+    private int baseDamage;
     private String type;
     /**
      * Mapeamento de 'muitos para um': Muitas Habilidades pertencem a UMA Entidade de Combate.
@@ -39,8 +39,8 @@ public class Ability {
     public int getMpCost() { return mpCost; }
     public void setMpCost(int mpCost) { this.mpCost = mpCost; }
 
-    public int getDamage() { return damage; }
-    public void setDamage(int damage) { this.damage = damage; }
+    public int getDamage() { return baseDamage; }
+    public void setDamage(int damage) { this.baseDamage = damage; }
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }

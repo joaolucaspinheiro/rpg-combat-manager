@@ -88,7 +88,7 @@ public class DoubleCircularLinkedList {
         }
 
             this.head = sortedList.head;
-            this.current = sortedList.head;
+            this.current = sortedList.head.getPrevious();
             this.size = sortedList.size;
 
 

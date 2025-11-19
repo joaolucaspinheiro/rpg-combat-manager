@@ -5,14 +5,14 @@ import jakarta.persistence.Entity;
 @Entity
 public class Enemy extends CombatEntity {
     // Tipo específico para Inimigo
-    private String EnemyType;
+    private String enemyType;
 
 
     // --- Getters and Setters ---
     public String getEnemyType() {
-        return EnemyType;
+        return enemyType;
     }
     public void setEnemyType(String enemyType) {
-        EnemyType = enemyType;
+        enemyType = enemyType;
     }
 }
