@@ -1,8 +1,10 @@
 package com.poo.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "tb_character") //  evita o conflito com a palavra reservada do SQL
 public class Character extends CombatEntity {
     // atributos especificos para o personagem
     private String characterClass; // classe ex: guerreiro, mago, arqueiro
