@@ -53,13 +53,30 @@ public abstract class CombatEntity {
     public void setLevel(int level) { this.level = level; }
 
     public int getHpCurrent() { return hpCurrent; }
-    public void setHpCurrent(int hpCurrent) { this.hpCurrent = hpCurrent; }
+    public void setHpCurrent(int hpCurrent) {
+        if (hpCurrent < 0) {
+            this.hpCurrent = 0;
+        } else if (hpCurrent >this.hpMax){
+            this.hpCurrent = this.hpMax;
 
+        }
+        else{
+            this.hpCurrent = hpCurrent;
+        }
+    }
     public int getHpMax() { return hpMax; }
     public void setHpMax(int hpMax) { this.hpMax = hpMax; }
 
     public int getMpCurrent() { return mpCurrent; }
-    public void setMpCurrent(int mpCurrent) { this.mpCurrent = mpCurrent; }
+    public void setMpCurrent(int mpCurrent) {
+        if(mpCurrent < 0) {
+            this.mpCurrent = 0;
+        } else if (mpCurrent > this.mpMax) {
+            this.mpCurrent = this.mpMax;
+        } else {
+            this.mpCurrent = mpCurrent;
+        }
+    }
 
     public int getMpMax() { return mpMax; }
     public void setMpMax(int mpMax) { this.mpMax = mpMax; }
