@@ -6,6 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import com.poo.enums.AbilityType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 @Entity
 public class Ability {
@@ -18,7 +21,8 @@ public class Ability {
     private int mpCost;
     private int baseDamage;
     private String description;
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private AbilityType type;
     /**
      * Mapeamento de 'muitos para um': Muitas Habilidades pertencem a UMA Entidade de Combate.
      * Esta é a ponta DONA do relacionamento, pois contém a chave estrangeira (Foreign Key).
@@ -43,8 +47,8 @@ public class Ability {
     public int getBaseDamage() { return baseDamage; }
     public void setBaseDamage(int baseDamage) { this.baseDamage = baseDamage; }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public AbilityType getType() { return type; }
+    public void setType(AbilityType type) { this.type = type; }
 
     public CombatEntity getOwner() { return owner; }
     public void setOwner(CombatEntity owner) { this.owner = owner; }
