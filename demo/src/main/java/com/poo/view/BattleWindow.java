@@ -1,276 +1,217 @@
 package com.poo.view;
 
 import com.poo.entity.Ability;
-import com.poo.entity.Character;
 import com.poo.entity.CombatEntity;
-import com.poo.entity.Enemy;
+import com.poo.entity.Character;
 import com.poo.enums.AbilityType;
 import com.poo.service.CombatService;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class BattleWindow extends JFrame {
 
-    // Serviços
     private CombatService combatService;
+    private CombatEntity currentEntity; // Quem está agindo agora
+    private List<CombatEntity> allParticipants; // Referência para escolha de alvos
 
-    // Entidades
-    private Character player;
-    private Enemy enemy;
-
-    // Componentes da Tela
-    private JLabel lblPlayerName;
-    private JProgressBar barPlayerHP;
-    private JProgressBar barPlayerMP;
-
-    private JLabel lblEnemyName;
-    private JProgressBar barEnemyHP;
-
+    // Componentes UI
+    private JLabel lblTurno;
     private JTextArea txtLog;
-    private JButton btnAttack;
-    private JButton btnAbility;
+    private JPanel pnlParticipants; // Grid visual
+    private JButton btnAttack, btnAbility, btnPass;
 
-    public BattleWindow() {
-        // 1. Configuração da Janela
-        setTitle("RPG Combat Manager - Batalha");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10)); // Espaçamento entre componentes
-        setLocationRelativeTo(null); // Centraliza na tela
+    public BattleWindow(List<CombatEntity> participants) {
+        this.allParticipants = participants;
+        this.combatService = new CombatService();
 
-        // 2. Inicializa Serviços e Dados (Mockados para teste rápido)
-        initGameData();
+        setTitle("Mesa de Combate - Game Master Mode");
+        setSize(1000, 700);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        // 3. Painel Superior (Área Visual dos Lutadores)
-        JPanel pnlArena = new JPanel(new GridLayout(1, 2, 20, 0));
-        pnlArena.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        // --- LADO DO JOGADOR ---
-        JPanel pnlPlayer = new JPanel(new GridLayout(0, 1, 5, 5));
-        pnlPlayer.setBorder(BorderFactory.createTitledBorder("Herói"));
-
-        lblPlayerName = new JLabel(player.getName());
-        lblPlayerName.setFont(new Font("Arial", Font.BOLD, 18));
-        lblPlayerName.setHorizontalAlignment(SwingConstants.CENTER);
-
-        barPlayerHP = createProgressBar(Color.RED, player.getHpMax());
-        barPlayerMP = createProgressBar(Color.BLUE, player.getMpMax());
-
-        pnlPlayer.add(lblPlayerName);
-        pnlPlayer.add(new JLabel("HP:"));
-        pnlPlayer.add(barPlayerHP);
-        pnlPlayer.add(new JLabel("MP:"));
-        pnlPlayer.add(barPlayerMP);
-
-        // --- LADO DO INIMIGO ---
-        JPanel pnlEnemy = new JPanel(new GridLayout(0, 1, 5, 5));
-        pnlEnemy.setBorder(BorderFactory.createTitledBorder("Inimigo"));
-
-        lblEnemyName = new JLabel(enemy.getName());
-        lblEnemyName.setFont(new Font("Arial", Font.BOLD, 18));
-        lblEnemyName.setHorizontalAlignment(SwingConstants.CENTER);
-        lblEnemyName.setForeground(Color.RED);
-
-        barEnemyHP = createProgressBar(Color.RED, enemy.getHpMax());
-
-        pnlEnemy.add(lblEnemyName);
-        pnlEnemy.add(new JLabel("HP:"));
-        pnlEnemy.add(barEnemyHP);
-        // Inimigo visualmente não precisa mostrar MP agora
-
-        pnlArena.add(pnlPlayer);
-        pnlArena.add(pnlEnemy);
-        add(pnlArena, BorderLayout.NORTH);
-
-        // 4. Painel Central (Log de Combate)
-        txtLog = new JTextArea();
-        txtLog.setEditable(false);
-        txtLog.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        JScrollPane scrollLog = new JScrollPane(txtLog);
-        scrollLog.setBorder(BorderFactory.createTitledBorder("Registro de Combate"));
-        add(scrollLog, BorderLayout.CENTER);
-
-        // 5. Painel Inferior (Botões)
-        JPanel pnlActions = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
-        btnAttack = new JButton("ATAQUE FÍSICO");
-        btnAbility = new JButton("USAR HABILIDADE");
-
-        // Estilizando botões
-        Dimension btnSize = new Dimension(180, 50);
-        btnAttack.setPreferredSize(btnSize);
-        btnAbility.setPreferredSize(btnSize);
-
-        pnlActions.add(btnAttack);
-        pnlActions.add(btnAbility);
-        add(pnlActions, BorderLayout.SOUTH);
-
-        // 6. Configurando Ações (Eventos)
-        btnAttack.addActionListener(e -> performPlayerAttack());
-        btnAbility.addActionListener(e -> showAbilityDialog());
-
-        // Atualiza a tela inicial
-        updateUI();
-        log("Combate iniciado! " + player.getName() + " (Lvl " + player.getLevel() + ") encontrou " + enemy.getName() + "!");
-    }
-
-    // Cria uma barra de progresso colorida
-    private JProgressBar createProgressBar(Color color, int max) {
-        JProgressBar bar = new JProgressBar(0, max);
-        bar.setValue(max);
-        bar.setStringPainted(true); // Mostra o numero ex: 100/100
-        bar.setForeground(color);
-        return bar;
-    }
-
-    private void initGameData() {
-        combatService = new CombatService();
-
-        // Criando dados na memória para testar a interface sem depender do banco agora
-        player = new Character();
-        player.setName("Lucas, o Mago");
-        player.setHpMax(100);
-        player.setHpCurrent(100);
-        player.setMpMax(100);
-        player.setMpCurrent(100);
-        player.setLevel(1);
-        player.setAbilities(new ArrayList<>());
-
-        Ability fireball = new Ability();
-        fireball.setName("Bola de Fogo");
-        fireball.setMpCost(20);
-        fireball.setBaseDamage(35);
-        fireball.setType(AbilityType.DAMAGE);
-        player.getAbilities().add(fireball);
-
-        Ability heal = new Ability();
-        heal.setName("Cura Menor");
-        heal.setMpCost(15);
-        heal.setBaseDamage(25); // Valor da cura
-        heal.setType(AbilityType.HEAL);
-        player.getAbilities().add(heal);
-
-        enemy = new Enemy();
-        enemy.setName("Goblin Saqueador");
-        enemy.setHpMax(80);
-        enemy.setHpCurrent(80);
-
-        // Configura o serviço de combate
-        List<CombatEntity> participants = new ArrayList<>();
-        participants.add(player);
-        participants.add(enemy);
+        // 1. Inicializa o serviço e ordena a lista circular
         combatService.startCombat(participants);
+
+        // 2. Painel Topo (Quem está agindo)
+        JPanel pnlHeader = new JPanel(new FlowLayout());
+        pnlHeader.setBackground(Color.DARK_GRAY);
+        lblTurno = new JLabel("Aguardando início...");
+        lblTurno.setForeground(Color.WHITE);
+        lblTurno.setFont(new Font("Arial", Font.BOLD, 24));
+        pnlHeader.add(lblTurno);
+        add(pnlHeader, BorderLayout.NORTH);
+
+        // 3. Painel Central (Visualização de Status em Grid)
+        pnlParticipants = new JPanel(new GridLayout(0, 3, 10, 10)); // 3 colunas, N linhas
+        pnlParticipants.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        add(new JScrollPane(pnlParticipants), BorderLayout.CENTER);
+
+        // 4. Painel Lateral (Log)
+        txtLog = new JTextArea(20, 30);
+        txtLog.setEditable(false);
+        add(new JScrollPane(txtLog), BorderLayout.EAST);
+
+        // 5. Painel Inferior (Controles do GM)
+        JPanel pnlControls = new JPanel(new FlowLayout());
+        btnAttack = new JButton("Ataque Básico");
+        btnAbility = new JButton("Usar Habilidade");
+        btnPass = new JButton("Passar Turno / Próximo");
+
+        Dimension btnSz = new Dimension(160, 50);
+        btnAttack.setPreferredSize(btnSz);
+        btnAbility.setPreferredSize(btnSz);
+        btnPass.setPreferredSize(btnSz);
+
+        pnlControls.add(btnAttack);
+        pnlControls.add(btnAbility);
+        pnlControls.add(btnPass);
+        add(pnlControls, BorderLayout.SOUTH);
+
+        // 6. Ações
+        btnPass.addActionListener(e -> nextTurn());
+        btnAttack.addActionListener(e -> gmPerformAttack());
+        btnAbility.addActionListener(e -> gmPerformAbility());
+
+        // Inicia o primeiro turno
+        updateParticipantGrid();
+        nextTurn();
     }
 
-    private void performPlayerAttack() {
-        // Jogador Ataca
-        String result = combatService.performAttack(player, enemy, 10); // Dano base da arma
-        log("[JOGADOR] " + result);
+    private void nextTurn() {
+        // Verifica se o combate acabou
+        int livingCount = 0;
+        for(CombatEntity c : allParticipants) if(c.getHpCurrent() > 0) livingCount++;
 
-        updateUI();
-        if (checkCombatEnd()) return;
-
-        // Turno do Inimigo (pequeno delay para parecer natural)
-        enemyTurn();
-    }
-
-    private void enemyTurn() {
-        // Simulação simples: inimigo ataca de volta
-        SwingUtilities.invokeLater(() -> {
-            String result = combatService.performAttack(enemy, player, 8); // Dano do inimigo
-            log("[INIMIGO] " + result);
-            updateUI();
-            checkCombatEnd();
-        });
-    }
-
-    private void showAbilityDialog() {
-        List<Ability> abilities = player.getAbilities();
-        if (abilities.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Você não tem habilidades!");
+        if(livingCount <= 1) {
+            JOptionPane.showMessageDialog(this, "Combate Encerrado!");
             return;
         }
 
-        // Cria array de opções para o popup
-        String[] options = new String[abilities.size()];
-        for (int i = 0; i < abilities.size(); i++) {
-            Ability a = abilities.get(i);
-            options[i] = a.getName() + " (" + a.getMpCost() + " MP)";
+        // Pega o próximo da Lista Circular
+        currentEntity = combatService.nextTurn();
+
+        // Se pegou alguém morto, pula automaticamente
+        while(currentEntity.getHpCurrent() <= 0) {
+            currentEntity = combatService.nextTurn();
         }
 
-        int choice = JOptionPane.showOptionDialog(this,
-                "Escolha uma habilidade:",
-                "Grimório de Habilidades",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                null, options, options[0]);
+        // Atualiza UI
+        String type = (currentEntity instanceof Character) ? "Herói" : "Inimigo";
+        lblTurno.setText("Turno de: " + currentEntity.getName() + " (" + type + ")");
+        log("--- Turno de " + currentEntity.getName() + " ---");
 
-        if (choice >= 0) {
-            Ability selected = abilities.get(choice);
+        // Destaca visualmente na grid
+        updateParticipantGrid();
+    }
 
-            // Verifica MP antes de chamar o serviço para dar feedback visual rápido
-            if (player.getMpCurrent() < selected.getMpCost()) {
-                JOptionPane.showMessageDialog(this, "Mana insuficiente!", "Aviso", JOptionPane.WARNING_MESSAGE);
-                return;
+    private void gmPerformAttack() {
+        CombatEntity target = pickTarget();
+        if (target != null) {
+            String res = combatService.performAttack(currentEntity, target, 10);
+            log(res);
+            updateParticipantGrid();
+        }
+    }
+
+    private void gmPerformAbility() {
+        if (currentEntity.getAbilities().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Esta entidade não possui habilidades!");
+            return;
+        }
+
+        // 1. Escolher Habilidade
+        Ability[] abilities = currentEntity.getAbilities().toArray(new Ability[0]);
+        String[] options = new String[abilities.length];
+        for (int i=0; i<abilities.length; i++) options[i] = abilities[i].getName() + " ("+abilities[i].getMpCost()+" MP)";
+
+        int choice = JOptionPane.showOptionDialog(this, "Escolha a Habilidade:", "Grimório",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+
+        if (choice < 0) return;
+        Ability selectedAbility = abilities[choice];
+
+        // 2. Escolher Alvo
+        CombatEntity target = pickTarget();
+        if (target != null) {
+            String res = combatService.useAbility(currentEntity, target, selectedAbility, selectedAbility.getBaseDamage());
+            log(res);
+            updateParticipantGrid();
+        }
+    }
+
+    private CombatEntity pickTarget() {
+        // Filtra apenas vivos para serem alvos
+        List<CombatEntity> livingTargets = allParticipants.stream()
+                .filter(e -> e.getHpCurrent() > 0)
+                .toList();
+
+        CombatEntity[] options = livingTargets.toArray(new CombatEntity[0]);
+
+        // Mostra popup para o GM escolher quem vai sofrer a ação
+        CombatEntity selected = (CombatEntity) JOptionPane.showInputDialog(
+                this,
+                "Selecione o Alvo da ação de " + currentEntity.getName() + ":",
+                "Escolha de Alvo",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        return selected;
+    }
+
+    // Atualiza os cartões visuais de todos os participantes
+    private void updateParticipantGrid() {
+        pnlParticipants.removeAll();
+
+        for (CombatEntity e : allParticipants) {
+            JPanel card = new JPanel(new GridLayout(4, 1));
+            card.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
+
+            // Destaca se for o turno dele
+            if (e == currentEntity) {
+                card.setBackground(new Color(255, 255, 200)); // Amarelo claro
+                card.setBorder(BorderFactory.createLineBorder(Color.ORANGE, 4));
+            } else if (e.getHpCurrent() <= 0) {
+                card.setBackground(Color.LIGHT_GRAY); // Morto
+                card.setEnabled(false);
             }
 
-            // Define o alvo (se for cura, alvo é si mesmo; se dano, é o inimigo)
-            CombatEntity target = (selected.getType() == AbilityType.HEAL) ? player : enemy;
+            JLabel lblName = new JLabel(e.getName());
+            lblName.setFont(new Font("Arial", Font.BOLD, 14));
+            if (e instanceof Character) lblName.setForeground(Color.BLUE);
+            else lblName.setForeground(Color.RED);
 
-            String result = combatService.useAbility(player, target, selected, selected.getBaseDamage());
-            log("[MAGIA] " + result);
+            JProgressBar hpBar = new JProgressBar(0, e.getHpMax());
+            hpBar.setValue(e.getHpCurrent());
+            hpBar.setString("HP: " + e.getHpCurrent());
+            hpBar.setStringPainted(true);
+            hpBar.setForeground(Color.RED);
 
-            updateUI();
-            if (checkCombatEnd()) return;
+            JProgressBar mpBar = new JProgressBar(0, e.getMpMax());
+            mpBar.setValue(e.getMpCurrent());
+            mpBar.setString("MP: " + e.getMpCurrent());
+            mpBar.setStringPainted(true);
+            mpBar.setForeground(Color.BLUE);
 
-            enemyTurn();
-        }
-    }
+            card.add(lblName);
+            card.add(hpBar);
+            card.add(mpBar);
 
-    private void updateUI() {
-        // Atualiza Jogador
-        barPlayerHP.setValue(player.getHpCurrent());
-        barPlayerHP.setString(player.getHpCurrent() + "/" + player.getHpMax());
 
-        barPlayerMP.setValue(player.getMpCurrent());
-        barPlayerMP.setString(player.getMpCurrent() + "/" + player.getMpMax());
+            card.add(new JLabel("Inic: " + e.getInitiative()));
 
-        // Atualiza Inimigo
-        barEnemyHP.setValue(enemy.getHpCurrent());
-        barEnemyHP.setString(enemy.getHpCurrent() + "/" + enemy.getHpMax());
-    }
-
-    private void log(String message) {
-        txtLog.append(message + "\n");
-        txtLog.setCaretPosition(txtLog.getDocument().getLength()); // Rola log para baixo
-    }
-
-    private boolean checkCombatEnd() {
-        if (player.getHpCurrent() <= 0) {
-            JOptionPane.showMessageDialog(this, "GAME OVER! Você caiu em combate.");
-            System.exit(0); // Fecha o jogo
-            return true;
-        } else if (enemy.getHpCurrent() <= 0) {
-            JOptionPane.showMessageDialog(this, "VITÓRIA! O inimigo foi derrotado.");
-            System.exit(0); // Fecha o jogo
-            return true;
-        }
-        return false;
-    }
-
-    // Método main para rodar direto a janela
-    public static void main(String[] args) {
-        // LookVerify and Feel do sistema operacional (fica mais bonito)
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
+            pnlParticipants.add(card);
         }
 
-        SwingUtilities.invokeLater(() -> {
-            new BattleWindow().setVisible(true);
-        });
+        pnlParticipants.revalidate();
+        pnlParticipants.repaint();
+    }
+
+    private void log(String msg) {
+        txtLog.append(msg + "\n");
+        txtLog.setCaretPosition(txtLog.getDocument().getLength());
     }
 }

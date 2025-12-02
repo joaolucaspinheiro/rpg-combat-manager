@@ -40,7 +40,7 @@ public abstract class CombatEntity {
      * fetch=FetchType.LAZY: Carrega a lista de habilidades apenas quando for solicitada,
      * otimizando a performance.
      */
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Ability> abilities;
 
     // --- Getters and Setters ---
@@ -86,6 +86,9 @@ public abstract class CombatEntity {
 
     public List<Ability> getAbilities() { return abilities; }
     public void setAbilities(List<Ability> abilities) { this.abilities = abilities; }
-
+    @Override
+    public String toString() {
+        return this.name;
+    }
     }
 
