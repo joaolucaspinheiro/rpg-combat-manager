@@ -67,5 +67,49 @@ public class EnemyDAO extends GenericDAO<Enemy> {
             em.close();
         }
     }
+    /**
+     * Insere uma grande quantidade de inimigos para testes de carga.
+     * Usa batch processing para evitar estouro de memória.
+     */
+    public void populateInBulk(int quantity) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            String[] types = {"Orc", "Bandido", "Goblin", "Esqueleto", "Dragão"};
+            java.util.Random random = new java.util.Random();
+
+            for (int i = 1; i <= quantity; i++) {
+                Enemy enemy = new Enemy();
+                String type = types[random.nextInt(types.length)];
+
+                enemy.setName(type + " " + i);
+                enemy.setEnemyType(type);
+                enemy.setLevel(random.nextInt(10) + 1);
+                enemy.setHpMax(50 + random.nextInt(100));
+                enemy.setHpCurrent(enemy.getHpMax());
+                enemy.setMpMax(20);
+                enemy.setMpCurrent(20);
+                enemy.setInitiative(random.nextInt(20));
+
+                em.persist(enemy);
+
+                if (i % 100 == 0) {
+                    em.flush();
+                    em.clear();
+                }
+            }
+
+            em.getTransaction().commit();
+            System.out.println("Inserção de " + quantity + " inimigos concluída!");
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            em.close();
+        }
+    }
 
 }

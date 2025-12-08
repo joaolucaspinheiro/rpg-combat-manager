@@ -49,4 +49,7 @@ public class EntityService {
     public void deleteEnemy(Enemy enemy) {
         enemyDAO.delete(enemy);
     }
+    public void generateMassiveData(int quantity) {
+        enemyDAO.populateInBulk(quantity);
+    }
 }
