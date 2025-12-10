@@ -86,6 +86,7 @@ public class BattleWindow extends JFrame {
 
         if(livingCount <= 1) {
             JOptionPane.showMessageDialog(this, "Combate Encerrado!");
+            dispose();
             return;
         }
 

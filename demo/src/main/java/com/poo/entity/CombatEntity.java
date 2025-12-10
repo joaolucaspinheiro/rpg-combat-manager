@@ -16,7 +16,7 @@ import java.util.List;
 public abstract class CombatEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Representa a tabela pai
     private Long id;
 
     private int level;
@@ -37,8 +37,7 @@ public abstract class CombatEntity {
      * cascade=CascadeType.ALL: Propaga todas as operações (salvar, atualizar, deletar)
      * desta Entidade para suas Habilidades associadas.
      *
-     * fetch=FetchType.LAZY: Carrega a lista de habilidades apenas quando for solicitada,
-     * otimizando a performance.
+     * fetch=FetchType.EAGER: Carrega a lista de habilidades inteira <-- não usei o LAZY pq bugava
      */
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Ability> abilities;

@@ -16,7 +16,7 @@ public class CreateEntityWindow extends JFrame {
         entityService = new EntityService();
 
         setTitle("Criar Entidades");
-        setSize(400, 400);
+        setSize(450, 450);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -28,7 +28,7 @@ public class CreateEntityWindow extends JFrame {
     }
 
     private JPanel createHeroPanel() {
-        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JTextField txtName = new JTextField();
@@ -36,12 +36,14 @@ public class CreateEntityWindow extends JFrame {
         JTextField txtMp = new JTextField("50");
         JTextField txtClass = new JTextField("Guerreiro");
         JTextField txtLevel = new JTextField("1");
+        JTextField txtInitiative = new JTextField("10");
 
         panel.add(new JLabel("Nome:")); panel.add(txtName);
         panel.add(new JLabel("HP Max:")); panel.add(txtHp);
         panel.add(new JLabel("MP Max:")); panel.add(txtMp);
         panel.add(new JLabel("Classe:")); panel.add(txtClass);
         panel.add(new JLabel("Nível:")); panel.add(txtLevel);
+        panel.add(new JLabel("Iniciativa:")); panel.add(txtInitiative);
 
         JButton btnSave = new JButton("Salvar Herói");
         btnSave.addActionListener(e -> {
@@ -54,7 +56,7 @@ public class CreateEntityWindow extends JFrame {
                 c.setMpCurrent(c.getMpMax());
                 c.setLevel(Integer.parseInt(txtLevel.getText()));
                 c.setCharacterClass(txtClass.getText());
-                c.setInitiative(10); // Valor padrão
+                c.setInitiative(Integer.parseInt(txtInitiative.getText()));
 
                 entityService.saveCharacter(c);
                 JOptionPane.showMessageDialog(this, "Herói salvo com sucesso!");
@@ -70,18 +72,20 @@ public class CreateEntityWindow extends JFrame {
     }
 
     private JPanel createEnemyPanel() {
-        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JTextField txtName = new JTextField();
         JTextField txtHp = new JTextField("80");
         JTextField txtType = new JTextField("Orc");
         JTextField txtLevel = new JTextField("1");
+        JTextField txtInitiative = new JTextField("10");
 
         panel.add(new JLabel("Nome:")); panel.add(txtName);
         panel.add(new JLabel("HP Max:")); panel.add(txtHp);
         panel.add(new JLabel("Tipo:")); panel.add(txtType);
         panel.add(new JLabel("Nível:")); panel.add(txtLevel);
+        panel.add(new JLabel("Iniciativa:")); panel.add(txtInitiative);
 
         JButton btnSave = new JButton("Salvar Inimigo");
         btnSave.addActionListener(e -> {
@@ -93,7 +97,7 @@ public class CreateEntityWindow extends JFrame {
                 en.setMpMax(0); en.setMpCurrent(0);
                 en.setEnemyType(txtType.getText());
                 en.setLevel(Integer.parseInt(txtLevel.getText()));
-                en.setInitiative(5);
+                en.setInitiative(Integer.parseInt(txtInitiative.getText()));
 
                 entityService.saveEnemy(en);
                 JOptionPane.showMessageDialog(this, "Inimigo salvo com sucesso!");
